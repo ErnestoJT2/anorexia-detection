@@ -1,0 +1,65 @@
+# Entorno virtual
+.venv*/
+venv/
+ENV/
+env/
+*.env
+
+# Archivos temporales de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.log
+
+# Archivos de Jupyter y checkpoints
+.ipynb_checkpoints/
+*.ipynb
+
+# Salidas de pruebas y pytest
+htmlcov/
+.cache/
+.tox/
+.pytest_cache/
+
+# Archivos de entrenamiento y modelos
+*.joblib
+*.npy
+*.npz
+*.pkl
+*.sav
+*.h5
+
+# Datos generados
+*.tsv
+*.json
+*.xls
+*.xlsx
+
+# Resultados y visualizaciones
+*.png
+*.pdf
+*.svg
+*.jpg
+
+# Configuración IDE/editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# FastAPI / Uvicorn
+*.sqlite3
+*.db
+*.pid
+
+# Carpetas de salida (atributos y modelos)
+2. Extraccion de Atributos/out/
+3. Clasificador ML/out/
+3. Clasificador ML/splits/
