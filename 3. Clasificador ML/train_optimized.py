@@ -1,11 +1,12 @@
 """
-Autor: Ernesto Juarez Torres A01754887  
-Fecha: 2025-05
+train_svm.py – Entrenamiento y evaluación de SVM lineal con y sin balanceo de clases.
 
 Este script entrena dos variantes de SVM lineal (una con `class_weight=None` y otra con `"balanced"`),
 realiza optimización de hiperparámetro `C` mediante GridSearchCV, y evalúa su desempeño usando AUC-ROC.
 Los modelos y gráficas se guardan, junto con una tabla de métricas y un heatmap comparativo.
 
+Autor: Ernesto Juarez Torres A01754887  
+Fecha: 2025-05
 """
 
 from pathlib import Path
@@ -84,4 +85,10 @@ results = [
 df = pd.DataFrame(results).set_index("modelo")
 df.to_csv(OUT / "metrics.csv", mode="a", header=not (OUT / "metrics.csv").exists())
 
-sns.heatmap(df, annot=True, cmap="Blues", fmt
+sns.heatmap(df, annot=True, cmap="Blues", fmt=".3f")
+plt.title("AUC en TEST")
+plt.tight_layout()
+plt.savefig(OUT / "metrics_heatmap.png", dpi=140)
+plt.close()
+
+print("✔ Métricas y curvas guardadas en", OUT)
