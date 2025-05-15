@@ -1,7 +1,3 @@
-Perfecto, Ernesto. Aquí tienes tu `README.md` completamente corregido, **sin encerrarlo en bloques de código Markdown**, y con la URL real de tu repositorio (`https://github.com/ErnestoJT2/anorexia-detection.git`), además del nombre del proyecto actualizado:
-
----
-
 # 🧠 Anorexia Detection Pipeline
 
 Este repositorio contiene un **pipeline completo** para la detección de señales de trastornos alimenticios (específicamente anorexia) en texto, usando datos similares a publicaciones de Twitter o Reddit. Incluye:
@@ -173,7 +169,3 @@ Content-Type: application/json
 ## 📝 Licencia
 
 Proyecto creado con fines académicos. Puedes reutilizarlo para proyectos educativos mencionando al autor.
-
----
-
-¿Te genero ahora el `.gitignore` adecuado para entornos Python y desarrollo con FastAPI? También puedo ayudarte a verificar que `requirements.txt` esté limpio y ordenado.
