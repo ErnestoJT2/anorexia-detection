@@ -1,17 +1,14 @@
 """
-Autor: Ernesto Juarez Torres A01754887  
+Autor: Ernesto Juarez Torres A01754887
 Fecha: 2025-05
 
-Este servicio expone un endpoint `/predict` que recibe texto y devuelve la predicción
-(realizada por un modelo LogisticRegression entrenado con TF-IDF bigramas).
-Además, sirve una interfaz HTML y abre automáticamente el navegador.
-
+Servicio FastAPI que expone un endpoint `/predict` para clasificar texto como 'anorexia' o 'control'.
+Se entrena dinámicamente desde textos_originales.csv con TF-IDF bigramas y RandomForest.
 """
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from pydantic import BaseModel  # type: ignore
+from pydantic import BaseModel
 
 import webbrowser
 import threading
@@ -19,51 +16,51 @@ import time
 
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+from pathlib import Path
 
 # ---------------------- Inicialización ----------------------
 app = FastAPI()
 
 class PredictionRequest(BaseModel):
-    text: str  # Entrada del usuario para predicción
+    text: str
 
-# ---------------------- Carga y entrenamiento ----------------------
-# Cargar dataset preprocesado
-data = pd.read_csv(r'C:\Users\ernes\OneDrive\Escritorio\Reto Final\1. Preprocesamiento de Texto\data_final.csv')
+# ---------------------- Entrenamiento dinámico ----------------------
+BASE = Path(__file__).resolve().parent
+CSV = BASE.parent / "2. Extraccion de Atributos" / "OUT" / "textos_originales.csv"
 
-# Limpieza rápida de campo
-data['processed_text'] = data['tweet_text'].str.replace("[\[\]',]", "", regex=True)
+# Cargar corpus y etiquetas
+df = pd.read_csv(CSV)
+corpus = df["tweet_text"].astype(str).tolist()
+y = df["class"].astype(str).str.lower().str.strip().map({"control": 0, "anorexia": 1}).values
 
-# Vectorización con bigramas
+# Vectorización TF-IDF bigramas
 tfidf_vectorizer = TfidfVectorizer(ngram_range=(1, 2), max_features=1000)
-X_tfidf = tfidf_vectorizer.fit_transform(data['processed_text'])
+X = tfidf_vectorizer.fit_transform(corpus)
 
-# Entrenamiento del modelo
-model = LogisticRegression(max_iter=500, random_state=42)
-model.fit(X_tfidf, data['class'].map({'control': 0, 'anorexia': 1}))
+# Entrenar modelo rápido
+model = RandomForestClassifier(random_state=42)
+model.fit(X, y)
+
+print("✅ Modelo y vectorizador entrenados desde textos_originales.csv")
 
 # ---------------------- Endpoint de predicción ----------------------
-@app.post('/predict')
+@app.post("/predict")
 def predict(request: PredictionRequest):
-    """
-    Realiza una predicción sobre el texto recibido.
-    Retorna clase ('anorexia' o 'control') y probabilidad.
-    """
-    text_tfidf = tfidf_vectorizer.transform([request.text])
-    prediction = model.predict(text_tfidf)[0]
-    probability = model.predict_proba(text_tfidf)[0][1]
+    vector = tfidf_vectorizer.transform([request.text])
+    pred = model.predict(vector)[0]
+    prob = model.predict_proba(vector)[0][1]
 
     return {
-        'prediction': 'anorexia' if prediction == 1 else 'control',
-        'probability': probability
+        "prediction": "anorexia" if pred == 1 else "control",
+        "probability": round(prob, 3)
     }
 
-# ---------------------- Servir HTML y abrir navegador ----------------------
+# ---------------------- Interfaz web ----------------------
 app.mount("/", StaticFiles(directory=".", html=True), name="static")
 
 def open_browser():
-    time.sleep(2)  # Espera breve para asegurar que el servidor esté activo
+    time.sleep(1)
     webbrowser.open("http://127.0.0.1:8000/anorexia.html")
 
-# Ejecutar apertura en segundo plano
 threading.Thread(target=open_browser).start()

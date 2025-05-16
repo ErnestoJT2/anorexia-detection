@@ -1,32 +1,26 @@
 """
-sentimiento.py – Análisis de sentimiento para textos en español.
-
-Este módulo utiliza la librería `sentiment_analysis_spanish` para obtener una puntuación
-de sentimiento en el rango [0, 1] para cada documento del corpus. Las puntuaciones
-más cercanas a 1 indican un sentimiento positivo; más cercanas a 0, negativo.
-
-Autor: Ernesto Juarez Torres A01754887
+Autor: Ernesto Juárez Torres
 Fecha: 2025-05
+
+Devuelve puntuación de sentimiento para cada texto en español [0, 1].
 """
 
 from sentiment_analysis_spanish import sentiment_analysis
 import numpy as np
+from typing import List
 
 __all__ = ["sentiment_vector"]
 
-# Instancia del modelo de análisis de sentimiento
 _sa = sentiment_analysis.SentimentAnalysisSpanish()
 
-def sentiment_vector(corpus):
+def sentiment_vector(corpus: List[str]) -> np.ndarray:
     """
-    Aplica análisis de sentimiento a cada documento del corpus.
+    Evalúa sentimiento de cada documento.
 
     Parámetros:
-    - corpus : list[str]
-        Lista de documentos en español, uno por entrada.
+    - corpus: Lista de textos en español.
 
     Retorna:
-    - np.ndarray, shape (n_docs, 1)
-        Vector columna con las puntuaciones de sentimiento entre 0 (muy negativo) y 1 (muy positivo).
+    - np.ndarray (n_docs, 1) con valores entre 0 (negativo) y 1 (positivo).
     """
-    return np.array([_sa.sentiment(txt) for txt in corpus], dtype=np.float32).reshape(-1, 1)
+    return np.array([_sa.sentiment(text) for text in corpus], dtype=np.float32).reshape(-1, 1)

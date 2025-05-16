@@ -1,94 +1,73 @@
-"""
-train_svm.py – Entrenamiento y evaluación de SVM lineal con y sin balanceo de clases.
-
-Este script entrena dos variantes de SVM lineal (una con `class_weight=None` y otra con `"balanced"`),
-realiza optimización de hiperparámetro `C` mediante GridSearchCV, y evalúa su desempeño usando AUC-ROC.
-Los modelos y gráficas se guardan, junto con una tabla de métricas y un heatmap comparativo.
-
-Autor: Ernesto Juarez Torres A01754887  
-Fecha: 2025-05
-"""
-
+# train_optimized.py
 from pathlib import Path
-import numpy as np
 import pandas as pd
-import joblib
 import matplotlib.pyplot as plt
-import seaborn as sns
-
+from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import LinearSVC
-from sklearn.model_selection import StratifiedKFold, GridSearchCV
-from sklearn.metrics import roc_auc_score, RocCurveDisplay
+from sklearn.metrics import classification_report, roc_auc_score, f1_score, RocCurveDisplay
 from scipy.special import expit
 
-from dataload import load_all_matrices
+# === Cargar datos ===
+BASE = Path(__file__).parent
+OUT = BASE / "out"
+train_df = pd.read_csv(OUT / "train.csv")
+val_df = pd.read_csv(OUT / "val.csv")
 
-# ---------- Rutas ----------
-BASE  = Path(__file__).parent
-SPLIT = BASE / "splits"
-OUT   = BASE / "out"
-OUT.mkdir(exist_ok=True)
+X_train = train_df.drop(columns=["class"])
+y_train = train_df["class"]
+X_val = val_df.drop(columns=["class"])
+y_val = val_df["class"]
 
-# ---------- Carga de datos ----------
-X_full, y = load_all_matrices()
-train_idx  = np.load(SPLIT / "train_idx.npy")
-valid_idx  = np.load(SPLIT / "valid_idx.npy")
-test_idx   = np.load(SPLIT / "test_idx.npy")
-train_valid_idx = np.concatenate([train_idx, valid_idx])
+resultados = []
 
-# ---------- Anti-fuga ----------
-def strip_leakage(X, y, idx):
-    """
-    Elimina características que aparecen exclusivamente en una clase.
-    """
-    Xtv  = X[idx]
-    keep = ((Xtv[y[idx] == 1].sum(0).A1 > 0) &
-            (Xtv[y[idx] == 0].sum(0).A1 > 0))
-    return X[:, keep]
+# === Random Forest optimizado ===
+gs = GridSearchCV(
+    RandomForestClassifier(random_state=42),
+    param_grid={"n_estimators": [100, 200], "max_depth": [10, 20, None]},
+    scoring="roc_auc", cv=3, n_jobs=-1
+)
+gs.fit(X_train, y_train)
+pred_rf = gs.predict(X_val)
+proba_rf = gs.predict_proba(X_val)[:, 1]
+auc_rf = roc_auc_score(y_val, proba_rf)
+f1_rf = f1_score(y_val, pred_rf)
 
-X = strip_leakage(X_full, y, train_valid_idx)
+with open(OUT / "reporte_rf_opt.txt", "w") as f:
+    f.write(classification_report(y_val, pred_rf, target_names=["control", "anorexia"]))
 
-# ---------- Entrenamiento y evaluación ----------
-def train_and_eval(name, class_weight):
-    """
-    Entrena un modelo SVM con GridSearchCV y evalúa AUC sobre test.
-    Guarda el modelo y la curva ROC.
-    """
-    svm  = LinearSVC(dual=False, class_weight=class_weight,
-                     max_iter=5000, random_state=42)
-    grid = {"C": [0.01, 0.1, 1, 10]}
-    cv   = StratifiedKFold(5, shuffle=True, random_state=42)
-    gs   = GridSearchCV(svm, grid, scoring="roc_auc", cv=cv, n_jobs=-1)
-    gs.fit(X[train_valid_idx], y[train_valid_idx])
-
-    best   = gs.best_estimator_
-    scores = expit(best.decision_function(X[test_idx]))
-    auc    = roc_auc_score(y[test_idx], scores)
-
-    print(f"{name:13s} AUC={auc:.4f}")
-
-    RocCurveDisplay.from_predictions(y[test_idx], scores)
-    plt.title(f"ROC – {name}")
-    plt.savefig(OUT / f"roc_{name}.png", dpi=140)
-    plt.close()
-
-    joblib.dump(best, OUT / f"{name}.joblib")
-    return {"modelo": name, "AUC": auc}
-
-# Entrenar modelos
-results = [
-    train_and_eval("svm", None),
-    train_and_eval("svm_balanced", "balanced"),
-]
-
-# ---------- Guardar métricas y heatmap ----------
-df = pd.DataFrame(results).set_index("modelo")
-df.to_csv(OUT / "metrics.csv", mode="a", header=not (OUT / "metrics.csv").exists())
-
-sns.heatmap(df, annot=True, cmap="Blues", fmt=".3f")
-plt.title("AUC en TEST")
+RocCurveDisplay.from_predictions(y_val, proba_rf).plot()
+plt.title("ROC – RF Optimizado")
 plt.tight_layout()
-plt.savefig(OUT / "metrics_heatmap.png", dpi=140)
+plt.savefig(OUT / "roc_rf_opt.png")
 plt.close()
 
-print("✔ Métricas y curvas guardadas en", OUT)
+resultados.append({"modelo": "rf_opt", "AUC": auc_rf, "F1": f1_rf})
+
+print("✅ RF optimizado entrenado")
+print(f"🔹 AUC: {auc_rf:.3f} | F1: {f1_rf:.3f}")
+
+# === SVM balanceado ===
+svm = LinearSVC(class_weight="balanced", max_iter=10000)
+svm.fit(X_train, y_train)
+scores_svm = expit(svm.decision_function(X_val))
+pred_svm = svm.predict(X_val)
+auc_svm = roc_auc_score(y_val, scores_svm)
+f1_svm = f1_score(y_val, pred_svm)
+
+with open(OUT / "reporte_svm_bal.txt", "w") as f:
+    f.write(classification_report(y_val, pred_svm, target_names=["control", "anorexia"]))
+
+RocCurveDisplay.from_predictions(y_val, scores_svm).plot()
+plt.title("ROC – SVM Balanceado")
+plt.tight_layout()
+plt.savefig(OUT / "roc_svm_bal.png")
+plt.close()
+
+resultados.append({"modelo": "svm_bal", "AUC": auc_svm, "F1": f1_svm})
+
+print("✅ SVM balanceado entrenado")
+print(f"🔹 AUC: {auc_svm:.3f} | F1: {f1_svm:.3f}")
+
+# === Guardar métricas ===
+pd.DataFrame(resultados).to_csv(OUT / "metrics.csv", mode="a", index=False, header=not (OUT / "metrics.csv").exists())

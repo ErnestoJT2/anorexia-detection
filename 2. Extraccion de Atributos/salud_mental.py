@@ -1,37 +1,39 @@
 """
-Autor: Ernesto Juarez Torres A01754887
+Autor: Ernesto Juárez Torres
 Fecha: 2025-05
 
-Este módulo proporciona la función `keywords_matrix`, que cuenta la frecuencia de aparición
-de un conjunto definido de palabras clave asociadas a trastornos de la conducta alimentaria (TCA)
-dentro de cada documento del corpus.
-
+Calcula la frecuencia de aparición de palabras clave relacionadas con TCA,
+limpiando tokens para eliminar comillas, tildes y puntuación simple.
 """
 
 import numpy as np
+from typing import List
+import unidecode
 
-__all__ = ["keywords_matrix"]
+__all__ = ["keywords_matrix", "KEYWORDS"]
 
-# Lista de palabras clave relacionadas con desórdenes alimenticios
-KEYWORDS = ["comida", "atracón", "bulimia", "anorexia", "ingesta", "restricción"]
+KEYWORDS = [
+    "comer", "comida", "anorexia", "bulimia", "atracon", "vomitar",
+    "fit", "gym", "peso", "adelgazar", "cuerpo", "hambre"
+]
 
-def keywords_matrix(corpus):
+def keywords_matrix(corpus: List[str]) -> np.ndarray:
     """
-    Calcula la frecuencia de aparición de cada palabra clave en cada documento del corpus.
+    Calcula la frecuencia de aparición de cada palabra clave por documento,
+    usando limpieza de acentos y puntuación básica.
 
     Parámetros:
-    - corpus : list[str]
-        Lista de documentos preprocesados, donde cada documento es un string con tokens separados por espacio.
+    - corpus: Lista de documentos con tokens separados por espacio.
 
     Retorna:
-    - np.ndarray, shape (n_docs, len(KEYWORDS))
-        Matriz densa con el conteo de cada palabra clave por documento.
+    - np.ndarray (n_docs, len(KEYWORDS)) con conteo por keyword.
     """
+    kw2idx = {kw: i for i, kw in enumerate(KEYWORDS)}
     m = np.zeros((len(corpus), len(KEYWORDS)), dtype=np.int16)
-    kw2idx = {k: i for i, k in enumerate(KEYWORDS)}
 
     for i, doc in enumerate(corpus):
-        for tok in doc.split():
+        tokens = [unidecode.unidecode(t.strip("',\"")).lower() for t in doc.split()]
+        for tok in tokens:
             if tok in kw2idx:
                 m[i, kw2idx[tok]] += 1
 

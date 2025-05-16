@@ -1,51 +1,37 @@
-"""
-Autor: Ernesto Juarez Torres A01754887  
-Fecha: 2025-05
-
-Este script carga el archivo `data_final.csv`, genera la columna 'label' si aún no existe,
-y divide los datos aleatoriamente en tres conjuntos: 70 % entrenamiento, 15 % validación
-y 15 % prueba. Los índices generados se guardan como archivos `.npy` para referencia posterior.
-
-"""
-
+# split_data.py
 from pathlib import Path
 import pandas as pd
-import numpy as np
-import re
+from sklearn.model_selection import train_test_split
+from dataload import load_all_features_and_labels
 
-# Rutas de entrada y salida
-ROOT    = Path(__file__).resolve().parent.parent
-CSV     = ROOT / "1. Preprocesamiento de Texto" / "data_final.csv"
-SPLITS  = Path(__file__).parent / "splits"
-SPLITS.mkdir(exist_ok=True)
+BASE = Path(__file__).parent
+OUT = BASE / "out"
+OUT.mkdir(exist_ok=True)
 
-# ------------------------ Añadir columna 'label' si no existe ------------------------
-df = pd.read_csv(CSV)
+# === Cargar atributos y etiquetas ===
+X, y = load_all_features_and_labels()
+X["class"] = y  # Añadir columna de etiqueta al final
 
-if "label" not in df.columns:
-    if "classe" in df.columns:
-        df["label"] = (df["classe"].str.lower().str.strip() != "control").astype(int)
-        print(" 'label' creada desde columna 'classe'")
-    else:
-        df["label"] = df["tweet_text"].str.contains(r"\banorexia\b", flags=re.I).astype(int)
-        print(" 'label' creada con keyword 'anorexia'")
-    df.to_csv(CSV, index=False)
-else:
-    print(" 'label' ya existe")
+# === División 70% entrenamiento / 30% restante ===
+X_train, X_temp = train_test_split(
+    X, test_size=0.30, stratify=X["class"], random_state=42
+)
 
-# ------------------------ División aleatoria reproducible ------------------------
-N = len(df)
-perm = np.random.RandomState(42).permutation(N)
-n_train = int(0.70 * N)
-n_valid = int(0.15 * N)
+# === División del 30% en validación (15%) y prueba (15%) ===
+X_val, X_test = train_test_split(
+    X_temp, test_size=0.5, stratify=X_temp["class"], random_state=42
+)
 
-train_idx = perm[:n_train]
-valid_idx = perm[n_train:n_train + n_valid]
-test_idx  = perm[n_train + n_valid:]
+# === Guardar archivos ===
+X_train.to_csv(OUT / "train.csv", index=False)
+X_val.to_csv(OUT / "val.csv", index=False)
+X_test.to_csv(OUT / "test.csv", index=False)
 
-# Guardar índices como .npy
-for name, arr in zip(("train", "valid", "test"), (train_idx, valid_idx, test_idx)):
-    np.save(SPLITS / f"{name}_idx.npy", arr)
-
-print(f" Índices guardados en {SPLITS}  "
-      f"train={len(train_idx)}, valid={len(valid_idx)}, test={len(test_idx)}")
+# === Impresión en consola ===
+print("✅ División completada y archivos guardados en /out")
+print(f"🔹 Entrenamiento: {X_train.shape[0]} ejemplos "
+      f"(anorexia: {(X_train['class']==1).sum()}, control: {(X_train['class']==0).sum()})")
+print(f"🔹 Validación:    {X_val.shape[0]} ejemplos "
+      f"(anorexia: {(X_val['class']==1).sum()}, control: {(X_val['class']==0).sum()})")
+print(f"🔹 Prueba:        {X_test.shape[0]} ejemplos "
+      f"(anorexia: {(X_test['class']==1).sum()}, control: {(X_test['class']==0).sum()})")

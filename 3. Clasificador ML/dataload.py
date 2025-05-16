@@ -1,61 +1,38 @@
-"""
-Autor: Ernesto Juarez Torres A01754887  
-Fecha: 2025-05
-
-Este módulo carga las matrices de características previamente generadas en la carpeta
-`2/out`, las concatena horizontalmente y asocia las etiquetas (`y`) extraídas desde el
-archivo `data_final.csv`. Es útil como entrada para modelos supervisados.
-
-"""
-
+# dataload.py
 from pathlib import Path
-import numpy as np
-import scipy.sparse as sp
 import pandas as pd
+import numpy as np
 
-# Rutas base
-ROOT = Path(__file__).resolve().parent.parent
-OUT2 = ROOT / "2. Extraccion de Atributos" / "out"
-
-def load_all_matrices():
+def load_all_features_and_labels():
     """
-    Carga todas las matrices de características generadas (sparse y dense),
-    concatena en una sola matriz `X` y asocia las etiquetas `y`.
-
-    Retorna:
-    - X : scipy.sparse.csr_matrix
-        Matriz dispersa de características combinadas.
-    - y : np.ndarray
-        Vector con las etiquetas binarias del corpus (0=control, 1=anorexia).
+    Carga matrices de atributos desde carpeta 2 y etiquetas desde textos_originales.csv.
     """
+    base_feat = Path(__file__).resolve().parent.parent / "2. Extraccion de Atributos" / "out"
+    base_raw  = base_feat  # ahora está en la misma carpeta
 
-    # 1) Carga de matrices dispersas y densas
-    mats = [
-        sp.load_npz(OUT2 / "tfidf.npz"),
-        sp.load_npz(OUT2 / "ngrams.npz"),
-        sp.load_npz(OUT2 / "bow.npz"),
-        sp.csr_matrix(np.load(OUT2 / "keywords.npy")),
-        sp.csr_matrix(np.load(OUT2 / "sentiment.npy")),
-        sp.csr_matrix(np.load(OUT2 / "stylistic.npy")),
-    ]
-    X = sp.hstack(mats).tocsr()
+    # === Cargar matrices de atributos ===
+    tfidf      = pd.read_csv(base_feat / "tfidf.csv")
+    bow        = pd.read_csv(base_feat / "bow.csv")
+    ngrams     = pd.read_csv(base_feat / "ngrams.csv")
+    keywords   = pd.read_csv(base_feat / "keywords.csv")
+    sentiment  = pd.read_csv(base_feat / "sentiment.csv")
+    stylistic  = pd.read_csv(base_feat / "stylistic.csv")
 
-    # 2) Carga etiquetas desde el CSV preprocesado
-    CSV = ROOT / "1. Preprocesamiento de Texto" / "data_final.csv"
-    df = pd.read_csv(CSV)
+    # === Cargar etiquetas desde textos_originales.csv ===
+    df_raw = pd.read_csv(base_raw / "textos_originales.csv")
 
-    # Si no existe la columna 'label', la generamos
-    if "label" not in df.columns:
-        if "classe" in df.columns:
-            # Asume 'classe' con 'control' y otros
-            df["label"] = (df["classe"].str.lower() != "control").astype(int)
-        else:
-            # Busca palabra clave 'anorexia' en el texto como fallback
-            df["label"] = (
-                df["tweet_text"]
-                  .str.contains(r"\banorexia\b", case=False, na=False)
-                  .astype(int)
-            )
+    if "class" not in df_raw.columns:
+        raise ValueError("La columna 'class' no fue encontrada en textos_originales.csv")
 
-    y = df["label"].values
+    y = df_raw["class"].astype(str).str.lower().str.strip().map({
+        "control": 0,
+        "anorexia": 1
+    }).values
+
+    if pd.isnull(y).any():
+        raise ValueError("Se encontraron etiquetas no válidas en la columna 'class'")
+
+    # === Combinar atributos ===
+    X = pd.concat([tfidf, bow, ngrams, keywords, sentiment, stylistic], axis=1)
+
     return X, y
