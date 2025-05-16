@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 import numpy as np
 
-# Añadir ruta a "2. Extraccion de Atributos" donde está salud_mental.py
+# Añadir la ruta a la carpeta que contiene salud_mental.py
 sys.path.append(str(Path(__file__).resolve().parent.parent / "2. Extraccion de Atributos"))
 
 from salud_mental import keywords_matrix, KEYWORDS
@@ -23,6 +23,8 @@ def test_keywords_freq():
 
     comida_idx = KEYWORDS.index("comida")
     atracon_idx = KEYWORDS.index("atracon")
+    anorexia_idx = KEYWORDS.index("anorexia")
 
     assert M[0, comida_idx] == 1, "La palabra 'comida' no fue detectada en el primer documento"
     assert M[0, atracon_idx] == 1, "La palabra 'atracon' no fue detectada en el primer documento"
+    assert M[1, anorexia_idx] == 1, "La palabra 'anorexia' no fue detectada en el segundo documento"

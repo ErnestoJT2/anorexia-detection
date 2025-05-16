@@ -8,9 +8,19 @@ Funciona con los nombres originales que los tests ya esperan.
 """
 
 import importlib.util
-from pathlib import Path
 import sys
 import pytest
+import warnings
+
+from pathlib import Path
+from sklearn.exceptions import InconsistentVersionWarning
+
+sys.path.append(str(Path(__file__).resolve().parent.parent / "2. Extraccion de Atributos"))
+warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+warnings.filterwarnings("ignore", category=UserWarning, message="The parameter 'token_pattern' will not be used.*")
+warnings.filterwarnings("ignore", category=PendingDeprecationWarning, message="vert: bool will be deprecated.*")
+warnings.filterwarnings("ignore", message="The parameter 'token_pattern' will not be used since 'tokenizer' is not None'", category=UserWarning)
+
 
 ROOT = Path(__file__).resolve().parent.parent   # carpeta reto-final
 
