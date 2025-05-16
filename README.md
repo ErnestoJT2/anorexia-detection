@@ -36,6 +36,7 @@ Este repositorio implementa un sistema completo para detectar señales de **tras
 │
 ├── 4. Servicio API/
 │   └── predict.py
+│__ 5. tests/
 ```
 
 ---
