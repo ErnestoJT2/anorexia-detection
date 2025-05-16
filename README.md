@@ -92,7 +92,8 @@ python "3. Clasificador ML/plot_metrics.py"
 ## 🚀 Predicción vía API
 
 ```bash
-uvicorn predict:app --reload
+ cd '.\4. Modelo\'                                                                   
+ uvicorn predict:app --reload --host 0.0.0.0 --port 8000
 ```
 
 Accede a la interfaz en tu navegador: [http://127.0.0.1:8000/anorexia.html](http://127.0.0.1:8000/anorexia.html)
