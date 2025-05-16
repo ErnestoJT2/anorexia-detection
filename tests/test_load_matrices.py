@@ -1,9 +1,17 @@
 #Autor: Ernesto Juárez Torres A01754887
+# tests/test_load_matrices.py
+"""
+Verifica que las matrices de características y etiquetas se cargan correctamente desde CSV.
+"""
 
-from dataload import load_all_matrices
+import sys
+from pathlib import Path
+import pandas as pd
 
-def test_matrices_dim():
-    X, y = load_all_matrices()
-    assert X.shape[0] == len(y) > 0
-    # TF‑IDF + BoW + N‑grams + 6 rasgos densos ⇒ > 6 columnas
-    assert X.shape[1] > 6
+sys.path.append(str(Path(__file__).resolve().parent.parent / "3. Clasificador ML"))
+from dataload import load_all_features_and_labels
+
+def test_matrices_dimensions():
+    X, y = load_all_features_and_labels()
+    assert X.shape[0] == len(y)
+    assert X.shape[1] > 1000  # Se espera gran número de atributos

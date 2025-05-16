@@ -1,9 +1,23 @@
-# split_data.py
+"""
+Autor: Ernesto Juarez Torres A01754887
+Fecha: 2025-05
+
+Este módulo realiza la división del conjunto completo de datos en tres subconjuntos:
+entrenamiento (70 %), validación (15 %) y prueba (15 %), usando particiones estratificadas
+para preservar la proporción entre clases ("anorexia" y "control").
+
+El conjunto de datos se carga mediante `load_all_features_and_labels()` y se guarda en
+archivos .csv separados para cada subconjunto en la carpeta /out.
+
+Este paso es fundamental para evaluar el rendimiento general del sistema con datos no vistos.
+"""
+
 from pathlib import Path
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataload import load_all_features_and_labels
 
+# === Configuración ===
 BASE = Path(__file__).parent
 OUT = BASE / "out"
 OUT.mkdir(exist_ok=True)

@@ -1,4 +1,20 @@
-# train_optimized.py
+"""
+Autor: Ernesto Juarez Torres A01754887
+Fecha: 2025-05
+
+Este script entrena y evalúa dos modelos optimizados para la detección de anorexia:
+1. Random Forest con ajuste de hiperparámetros mediante GridSearchCV.
+2. SVM lineal balanceado con regularización.
+
+Ambos modelos se validan usando AUC-ROC y F1-score sobre el conjunto de validación.
+Los resultados incluyen:
+- Reportes de clasificación (.txt)
+- Curvas ROC (.png)
+- Métricas numéricas (.csv)
+
+Este módulo forma parte del protocolo de evaluación de desempeño del sistema en la Fase 2.
+"""
+
 from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -69,5 +85,7 @@ resultados.append({"modelo": "svm_bal", "AUC": auc_svm, "F1": f1_svm})
 print("✅ SVM balanceado entrenado")
 print(f"🔹 AUC: {auc_svm:.3f} | F1: {f1_svm:.3f}")
 
-# === Guardar métricas ===
-pd.DataFrame(resultados).to_csv(OUT / "metrics.csv", mode="a", index=False, header=not (OUT / "metrics.csv").exists())
+# === Guardar métricas acumuladas ===
+pd.DataFrame(resultados).to_csv(
+    OUT / "metrics.csv", mode="a", index=False, header=not (OUT / "metrics.csv").exists()
+)

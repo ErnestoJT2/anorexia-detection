@@ -1,4 +1,18 @@
-# train_baseline.py
+"""
+Autor: Ernesto Juarez Torres A01754887
+Fecha: 2025-05
+
+Este script entrena un modelo base de clasificación usando Random Forest para la detección
+de publicaciones con señales de anorexia. Utiliza los conjuntos de entrenamiento y validación
+generados previamente, evalúa el modelo con métricas estándar (AUC-ROC y F1), y guarda:
+
+- Un reporte de clasificación (reporte_rf_baseline.txt)
+- Las métricas clave en formato CSV (metrics.csv)
+- La curva ROC como imagen (roc_rf_baseline.png)
+
+Este modelo sirve como referencia para comparar contra versiones optimizadas.
+"""
+
 from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -46,3 +60,4 @@ print("✅ Random Forest baseline entrenado")
 print(f"🔹 AUC: {auc:.3f} | F1: {f1:.3f}")
 print("🔍 Reporte de clasificación:\n")
 print(reporte)
+print

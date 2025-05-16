@@ -1,4 +1,18 @@
-# plot_metrics.py
+"""
+Autor: Ernesto Juarez Torres A01754887
+Fecha: 2025-05
+
+Este script genera un heatmap comparativo a partir de las métricas de desempeño (AUC y F1-score)
+de los modelos evaluados (Random Forest y SVM). El archivo de entrada es 'metrics.csv',
+que debe haber sido generado previamente por los scripts de entrenamiento (train_baseline.py
+y train_optimized.py).
+
+El gráfico generado ('comparacion_heatmap.png') permite visualizar las diferencias de rendimiento
+entre modelos de forma clara y resumida.
+
+Ubicación de salida: 3. Clasificador ML/out/
+"""
+
 from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt

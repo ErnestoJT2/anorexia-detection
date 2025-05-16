@@ -1,36 +1,27 @@
+# tests/test_split_data.py
 """
-#Autor: Ernesto Juárez Torres A01754887
+Autor: Ernesto Juárez Torres A01754887
+Fecha: 2025-05
 
-Verifica que split_data.py genere índices estratificados
-y que las proporciones sean ~70/15/15.
+Verifica que los archivos train.csv, val.csv y test.csv fueron creados correctamente
+y que sus proporciones son aproximadamente 70/15/15.
 """
 
-import importlib.util
 from pathlib import Path
-import numpy as np
+import pandas as pd
 
-def _locate_script():
-    """Tolera ambos nombres de carpeta."""
-    for p in [
-        Path("3. Clasificador ML/split_data.py"),
-        Path("3. Ejecución de un clasificador de Machine Learning/split_data.py"),
-    ]:
-        if p.exists():
-            return p
-    raise FileNotFoundError("No se encontró split_data.py")
+def test_split_proporcion():
+    base = Path(__file__).resolve().parent.parent / "3. Clasificador ML" / "out"
 
-def test_split_indices():
-    script = _locate_script()
-    spec   = importlib.util.spec_from_file_location("split", script)
-    mod    = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)          # ejecuta y crea archivos en mod.SPLITS
+    df_train = pd.read_csv(base / "train.csv")
+    df_val   = pd.read_csv(base / "val.csv")
+    df_test  = pd.read_csv(base / "test.csv")
 
-    splits_dir = mod.SPLITS
-    train = np.load(splits_dir / "train_idx.npy")
-    valid = np.load(splits_dir / "valid_idx.npy")
-    test  = np.load(splits_dir / "test_idx.npy")
-    total = len(train) + len(valid) + len(test)
+    total = len(df_train) + len(df_val) + len(df_test)
+    p_train = len(df_train) / total
+    p_val   = len(df_val) / total
+    p_test  = len(df_test) / total
 
-    assert abs(len(train)/total - 0.70) < 0.02
-    assert abs(len(valid)/total - 0.15) < 0.02
-    assert abs(len(test) /total - 0.15) < 0.02
+    assert abs(p_train - 0.70) < 0.02
+    assert abs(p_val   - 0.15) < 0.02
+    assert abs(p_test  - 0.15) < 0.02
