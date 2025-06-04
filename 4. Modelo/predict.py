@@ -27,7 +27,7 @@ class PredictionRequest(BaseModel):
 
 # ---------------------- Entrenamiento dinámico ----------------------
 BASE = Path(__file__).resolve().parent
-CSV = BASE.parent / "2. Extraccion de Atributos" / "OUT" / "textos_originales.csv"
+CSV = BASE.parent / "2. Extraccion de Atributos" / "out" / "textos_originales.csv"
 
 # Cargar corpus y etiquetas
 df = pd.read_csv(CSV)
