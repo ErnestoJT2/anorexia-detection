@@ -1,120 +1,90 @@
-
-# 🧠 Clasificador de Anorexia en Tweets – Reto TC3002B
-
-Este repositorio implementa un sistema completo para detectar señales de **trastornos de la conducta alimentaria (TCA)**, específicamente **anorexia**, en publicaciones escritas en español. Se utiliza un pipeline de procesamiento lingüístico y modelos de aprendizaje automático validados según el protocolo del curso TC3002B.
-
+---
+language:
+- en
+pipeline_tag: text-generation
+tags:
+- facebook
+- meta
+- pytorch
+- llama
+- llama-3
+license: other
+license_name: llama3
+license_link: LICENSE
+base_model: meta-llama/Meta-Llama-3-8B
 ---
 
-## 📁 Estructura del Proyecto
+# Meta-Llama-3-8B-GGUF
+- This is GGUF quantized version of [Meta-Llama-3-8B](https://huggingface.co/meta-llama/Meta-Llama-3-8B)
 
-```
-├── 1. Preprocesamiento de Texto/
-│   ├── pipeline_driver.py  ← Ejecuta los pasos 1 a 6 de limpieza
-│   ├── step1_eliminacion_de_ruido.py
-│   ├── step2_normalizacion.py
-│   ├── step3_tokenizacion.py
-│   ├── step4_eliminacion_stopwords.py
-│   ├── step5_lematizacion.py
-│   └── step6_abreviaturas.py
-│
-├── 2. Extraccion de Atributos/
-│   ├── pipeline_features.py
-│   └── OUT/
-│       ├── *.csv (TF-IDF, BoW, keywords, etc.)
-│       └── *.png (visualizaciones)
-│
-├── 3. Clasificador ML/
-│   ├── split_data.py
-│   ├── train_baseline.py
-│   ├── train_optimized.py
-│   ├── plot_metrics.py
-│   └── out/
-│       ├── reporte_*.txt
-│       ├── comparacion_modelos.csv
-│       ├── roc_*.png
-│       └── comparacion_heatmap.png
-│
-├── 4. Servicio API/
-│   └── predict.py
-│__ 5. tests/
-```
+## Model Details
 
----
+Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8 and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks. Further, in developing these models, we took great care to optimize helpfulness and safety. 
 
-## ⚙️ Instalación
+**Model developers** Meta
 
-```bash
-git clone https://github.com/TU_USUARIO/Clasificador-Anorexia-TC3002B.git
-cd Clasificador-Anorexia-TC3002B
-python -m venv .venv
-source .venv/bin/activate  # o .venv\Scripts\activate en Windows
-pip install -r requirements.txt
-```
+**Variations** Llama 3 comes in two sizes — 8B and 70B parameters — in pre-trained and instruction tuned variants.
 
----
+**Input** Models input text only.
 
-## 🧪 Ejecución del pipeline
+**Output** Models generate text and code only.
 
-### 1. Preprocesamiento de texto
+**Model Architecture** Llama 3 is an auto-regressive language model that uses an optimized transformer architecture. The tuned versions use supervised fine-tuning (SFT) and reinforcement learning with human feedback (RLHF) to align with human preferences for helpfulness and safety.
 
-```bash
-python "1. Preprocesamiento de Texto/pipeline_driver.py"
-```
 
-### 2. Extracción de atributos
+<table>
+  <tr>
+   <td>
+   </td>
+   <td><strong>Training Data</strong>
+   </td>
+   <td><strong>Params</strong>
+   </td>
+   <td><strong>Context length</strong>
+   </td>
+   <td><strong>GQA</strong>
+   </td>
+   <td><strong>Token count</strong>
+   </td>
+   <td><strong>Knowledge cutoff</strong>
+   </td>
+  </tr>
+  <tr>
+   <td rowspan="2" >Llama 3
+   </td>
+   <td rowspan="2" >A new mix of publicly available online data.
+   </td>
+   <td>8B
+   </td>
+   <td>8k
+   </td>
+   <td>Yes
+   </td>
+   <td rowspan="2" >15T+
+   </td>
+   <td>March, 2023
+   </td>
+  </tr>
+  <tr>
+   <td>70B
+   </td>
+   <td>8k
+   </td>
+   <td>Yes
+   </td>
+   <td>December, 2023
+   </td>
+  </tr>
+</table>
 
-```bash
-python "2. Extraccion de Atributos/pipeline_features.py"
-```
 
-### 3. División de datos y entrenamiento
+**Llama 3 family of models**. Token counts refer to pretraining data only. Both the 8 and 70B versions use Grouped-Query Attention (GQA) for improved inference scalability.
 
-```bash
-python "3. Clasificador ML/split_data.py"
-python "3. Clasificador ML/train_baseline.py"
-python "3. Clasificador ML/train_optimized.py"
-python "3. Clasificador ML/plot_metrics.py"
-```
+**Model Release Date** April 18, 2024.
 
----
+**Status** This is a static model trained on an offline dataset. Future versions of the tuned models will be released as we improve model safety with community feedback.
 
-## 📊 Resultados
+**License** A custom commercial license is available at: [https://llama.meta.com/llama3/license](https://llama.meta.com/llama3/license)
 
-- **Modelo SVM balanceado:**  
-  - AUC: 0.939  
-  - F1-score: 0.859  
-- Reportes de clasificación: `3. Clasificador ML/out/reporte_*.txt`
-- Comparación visual:  
-  ![comparacion_heatmap.png](3. Clasificador ML/out/comparacion_heatmap.png)
+Where to send questions or comments about the model Instructions on how to provide feedback or comments on the model can be found in the model [README](https://github.com/meta-llama/llama3). For more technical information about generation parameters and recipes for how to use Llama 3 in applications, please go [here](https://github.com/meta-llama/llama-recipes). 
 
----
-
-## 🚀 Predicción vía API
-
-```bash
- cd '.\4. Modelo\'                                                                   
- uvicorn predict:app --reload --host 0.0.0.0 --port 8000
-```
-
-Accede a la interfaz en tu navegador: [http://127.0.0.1:8000/anorexia.html](http://127.0.0.1:8000/anorexia.html)
-
-Puedes enviar POST como:
-```json
-{
-  "text": "no quiero comer, me siento gorda"
-}
-```
-
----
-
-## 🧪 Pruebas automáticas
-
-```bash
-pytest -q
-```
-
----
-
-## 📄 Licencia
-
-MIT – Ernesto Juárez Torres, 2025
