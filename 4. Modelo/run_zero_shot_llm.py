@@ -69,3 +69,4 @@ if __name__ == "__main__":
     m = metrics(y_true, y_pred, y_proba)
     print("\n=== Zero-Shot Llama-3-8B-Instruct ===")
     for k,v in m.items(): print(f"{k.upper():5}: {v:.4f}")
+    # Guardar resultados
