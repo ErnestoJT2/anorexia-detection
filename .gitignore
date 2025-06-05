@@ -58,6 +58,7 @@ desktop.ini
 *.sqlite3
 *.db
 *.pid
+*.cpp
 
 # Carpetas de salida (atributos y modelos)
 2. Extraccion de Atributos/out/
