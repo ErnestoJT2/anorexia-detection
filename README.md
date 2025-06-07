@@ -88,3 +88,10 @@ Meta developed and released the Meta Llama 3 family of large language models (LL
 
 Where to send questions or comments about the model Instructions on how to provide feedback or comments on the model can be found in the model [README](https://github.com/meta-llama/llama3). For more technical information about generation parameters and recipes for how to use Llama 3 in applications, please go [here](https://github.com/meta-llama/llama-recipes). 
 
+
+## Novedades
+
+- El script `4. Modelo/run_zero_shot_nli.py` ahora incluye limpieza de texto, calibración de umbral con un conjunto de validación y generación de gráficas (ROC, Precision-Recall, FP vs FN e histograma).
+- También está disponible `run_zero_shot_llm.py` para probar clasificación zero-shot con Llama 3.
+- El servicio `predict.py` permite probar un modelo TF-IDF + RandomForest vía FastAPI.
+
