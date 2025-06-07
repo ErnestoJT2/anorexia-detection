@@ -5,7 +5,8 @@ from fastapi.testclient import TestClient
 
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), r'..\4. Modelo')))
+model_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "4. Modelo"))
+sys.path.append(model_dir)
 from predict import app 
 
 client = TestClient(app)

@@ -11,7 +11,7 @@ from pathlib import Path
 import pandas as pd
 
 def test_split_proporcion():
-    base = Path(__file__).resolve().parent.parent / "3. Clasificador ML" / "out"
+    base = Path(__file__).resolve().parent.parent / "2. Extraccion de Atributos" / "out"
 
     df_train = pd.read_csv(base / "train.csv")
     df_val   = pd.read_csv(base / "val.csv")
