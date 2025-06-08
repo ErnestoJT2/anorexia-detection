@@ -129,7 +129,7 @@ def main():
     model = AutoModelForSequenceClassification.from_pretrained(model_name).to(device)
 
     # 4.3. Lectura de datos
-    ruta_all = r"/content/data_final.csv"
+    ruta_all = r"C:\Users\ernes\OneDrive\Escritorio\Reto Final\4. Modelo\data_all.csv"
     texts, labels_true = load_data(ruta_all)
     print(f"Total de ejemplos cargados: {len(texts)}")
 
